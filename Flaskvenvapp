@@ -23,7 +23,6 @@ except ImportError:
     from urllib import quote
     from urllib import urlencode
 api_key = os.environ.get('API_KEY_YELP')
-print (os.environ.get('API_KEY_YELP'))
 
 # API constants, you shouldn't have to change these.
 API_HOST = 'api.yelp.com'
@@ -116,8 +115,6 @@ def get_categories():
 @app.route('/')
 def index():
 	#yelp_reviews_index = self.yelp_reviews()
- 	return get_search() #yelp_reviews().items() #yelp_list #[yelp_name, yelp_coords] #yelp_list #tuple(yelp_reviews.items()) #yelp_reviews.values()
- 			#'<br/>'.join(['%s:: %s' % (key, value) for (key, value) in yelp_reviews().items()]) #yelp_list #[yelp_name, yelp_coords] #yelp_list #tuple(yelp_reviews.items()) #yelp_reviews.values()
-
+ 	return get_search() 
 if __name__ == "__main__":
  	app.run(debug=True)
