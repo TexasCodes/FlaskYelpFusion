@@ -8,6 +8,7 @@ import sys
 import urllib
 import urllib.parse
 import http.client
+import flaskconfig as config
 
 app = Flask(__name__)
 
@@ -27,12 +28,10 @@ api_key = os.environ.get('API_KEY_YELP')
 API_HOST = 'api.yelp.com'
 SEARCH_PATH = '/v3/businesses/search'
 BUSINESS_PATH1 = '/v3/businesses/'  # Business ID will come after slash.
-CATEGORY_PATH = '/v3/categories/'
+CATEGORY_PATH = '/v3/categories'
 
  # Defaults for our simple example.
-DEFAULT_TERM = 'dinner'
-DEFAULT_LOCATION = 'San Francisco, CA'
-SEARCH_LIMIT = 10
+json_key = "data"
 
 headers = {
 'Authorization': 'Bearer %s' % api_key,
@@ -64,56 +63,72 @@ def get_search():
 	conn.request("GET",r_url,headers=headers)
 	rev_res = conn.getresponse()     #response and read functions needed else error(?)
 	rev_data = rev_res.read()
-	yelp_reviews = json.loads(rev_data.decode("utf-8"))
-	yelp_dump = json.dumps(yelp_reviews, indent=2, sort_keys=True, ensure_ascii=False, separators=(',', ': '))
-	
+	yelp_reviews = json.loads(rev_data.decode("utf-8"))	
+	yelp_id = yelp_reviews['id']
 	yelp_name = yelp_reviews['name']
 	yelp_coords = yelp_reviews['coordinates']
-	yelp_price = yelp_reviews['price']
 
-	return json.dumps(yelp_reviews, indent=3, separators=(',', ': '))
+	yelp_dump = json.dumps(	
+		[json_key, 
+		{
+		'id': yelp_id, 
+		'name': yelp_name, 
+		'coordinates': yelp_coords}
+		], 
+		sort_keys=False, indent=4, separators=(': ', ': ')		
+		)
+
+	return yelp_dump
 
 
-@app.route('/get_business')
-def get_business():
+@app.route('/get_businessDetails')
+def get_businessDetails():
 	business_id = 'wP5mU6WLU5y6NVLm1NpPBA'
 	business_path = BUSINESS_PATH1 + business_id
-	url = 'https://' + API_HOST + business_path + '/reviews'
-	#url_params = {
-    #'latitude': request.args.get('latitude')
-    #}
-
+	url = 'https://' + API_HOST + business_path	
 	headers = {'Authorization': 'Bearer %s' % api_key,}
 
 	response = requests.get(url, headers=headers)
 	response_load = response.json()
-	response_dump = json.dumps(response_load)
+	response_dump = json.dumps(	[json_key,	
+		{'': response_load}],
+		sort_keys=False, indent=4, separators=(': ', ': ')	
+		)
 
 	return response_dump
 
 @app.route('/get_categories')
-def get_categories():
-	#category = 'Coffee & Tea'
-	#category_path = CATEGORY_PATH + category
-	url = 'https://api.yelp.com/v3/categories'
-	#url = 'https://' + API_HOST + CATEGORY_PATH
-	#url_params = {
-    #'latitude': request.args.get('latitude')
-    #}
-
+def get_categories():	
+	url = 'https://' + API_HOST + CATEGORY_PATH
 	headers = {'Authorization': 'Bearer %s' % api_key,}
 	url_params = {
+	"data": [],
     "country": "US",     
     }
 	response = requests.get(url, headers=headers, params=url_params)
-	response_load = response.json()
-	response_dump = json.dumps(response_load)
+	response_json = response.json()
 
-	return response_dump
+	response_dump = json.dumps(response_json)
+	response_load = json.loads(response_dump)
+	response_category1 = response_load['categories'][0]['alias']
+	response_category2 = response_load['categories'][1]['alias']
+	response_category3 = response_load['categories'][2]['alias']
+	response_category4 = response_load['categories'][3]['alias']
+	response_category5 = response_load['categories'][4]['alias']
+	response_category6 = response_load['categories'][5]['alias']
+	
+	response_format = json.dumps( [json_key,
+		{response_category1: response_category2, 
+		response_category3: response_category4,
+		response_category5: response_category6}], 
+		separators=(', ', ', '))
+
+	return response_format
 
 @app.route('/')
 def index():
-	#yelp_reviews_index = self.yelp_reviews()
- 	return get_search() 
+	
+ 	return get_search()
+	
 if __name__ == "__main__":
  	app.run(debug=True)
