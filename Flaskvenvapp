@@ -8,7 +8,6 @@ import sys
 import urllib
 import urllib.parse
 import http.client
-import flaskconfig as config
 
 app = Flask(__name__)
 
