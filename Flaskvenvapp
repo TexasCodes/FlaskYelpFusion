@@ -104,22 +104,20 @@ def get_categories():
 	"data": [],
     "country": "US",     
     }
+
+	data = []
+
 	response = requests.get(url, headers=headers, params=url_params)
 	response_json = response.json()
 
 	response_dump = json.dumps(response_json)
 	response_load = json.loads(response_dump)
-	response_category1 = response_load['categories'][0]['alias']
-	response_category2 = response_load['categories'][1]['alias']
-	response_category3 = response_load['categories'][2]['alias']
-	response_category4 = response_load['categories'][3]['alias']
-	response_category5 = response_load['categories'][4]['alias']
-	response_category6 = response_load['categories'][5]['alias']
-	
-	response_format = json.dumps( [json_key,
-		{response_category1: response_category2, 
-		response_category3: response_category4,
-		response_category5: response_category6}], 
+
+	for p in response_load['categories']: data.append(p['alias'])
+
+	alias_str = ', '.join(data)
+	response_format = json.dumps ( [json_key, 
+		{alias_str: alias_str}],
 		separators=(', ', ', '))
 
 	return response_format
