@@ -108,8 +108,8 @@ def get_categories():
 
 	alias_str = ', '.join(data)
 	response_format = json.dumps ( [json_key, 
-		alias_str],
-		indent=4, separators=(', ', ', '))
+		{'':alias_str}],
+		indent=4, separators=(': ', ', '))
 
 	return response_format
 
