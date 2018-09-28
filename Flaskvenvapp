@@ -38,48 +38,49 @@ headers = {
 
 @app.route('/get_search')
 def get_search():
+	url = 'https://' + API_HOST + SEARCH_PATH
+	headers = {'Authorization': 'Bearer %s' % api_key,}
+
 #need the following parameters (type dict) 
-	params = {'name':'coffee', 
-				'address1':'11005 Burnet Rd', 
-				'coordinates': {'latitude': 30.39442, 'longitude': -97.72019}, 
-				'city':'Austin', 
-				'state':'TX', 
-				'country':'US', 
-				'radius': 1, 'limit': 10}
+	url_params = {	'location': 'Austin',
+					'alias': 'hawaiian',	
+					'address1': '5000 Burnet Rd',				
+					'coordinates': {'latitude': 30.321166, 'longitude': -97.739538 },
+					'radius': 8, 'limit': 10
+					}
 
+	data_id = []
+	data_alias = []
+	response = requests.get(url, headers=headers, params=url_params)
+	response_json = response.json()
 
-	param_string = urllib.parse.urlencode(params)
-	conn = http.client.HTTPSConnection(API_HOST)
-	conn.request("GET", "/v3/businesses/matches/best?"+param_string, headers=headers)
+	response_dump = json.dumps(response_json)
+	response_load = json.loads(response_dump)
+	response_businesses = response_load['businesses']
 
-	res = conn.getresponse()
-	data = res.read()
-	data = json.loads(data.decode("utf-8"))
+	listvals = []
 
-	b_id = data['businesses'][0]['id']
+	for i in range(10):
+		listvals.append((response_businesses[i]['id'], response_businesses[i]['alias'], response_businesses[i]['coordinates']))		
 
-	r_url = BUSINESS_PATH1 + b_id #+ "/reviews"    #review request URL creation based on business ID
-	conn.request("GET",r_url,headers=headers)
-	rev_res = conn.getresponse()     #response and read functions needed else error(?)
-	rev_data = rev_res.read()
-	yelp_reviews = json.loads(rev_data.decode("utf-8"))	
-	yelp_id = yelp_reviews['id']
-	yelp_name = yelp_reviews['name']
-	yelp_coords = yelp_reviews['coordinates']
+	#print ('\n id: '.join([' name: '.join([' coordinates: '.join(['{:4}'.format(item) for item in row]) for row in listvals])]))
 
-	yelp_dump = json.dumps(	
-		[json_key, 
-		{
-		'id': yelp_id, 
-		'name': yelp_name, 
-		'coordinates': yelp_coords}
-		], 
-		sort_keys=False, indent=4, separators=(': ', ': ')		
-		)
+	response_format = json.dumps ( [json_key, 
+		{'id': listvals}],
+		separators=(', ', ', '))
 
-	return yelp_dump
+	# yelp_dump = json.dumps(	
+	# 	[json_key, 
+	# 	{
+	# 	'id': resp_id, 
+	# 	'name': resp_name, 
+	# 	'coordinates': resp_coords}
+	# 	], 
+	# 	sort_keys=False, indent=4, separators=(': ', ': ')		
+	# 	)
 
-
+	return response_format 
+	
 @app.route('/get_businessDetails')
 def get_businessDetails():
 	business_id = 'wP5mU6WLU5y6NVLm1NpPBA'
