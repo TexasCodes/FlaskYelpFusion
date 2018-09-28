@@ -66,8 +66,9 @@ def get_search():
 			)
 		)
 
-	response_format = json.dumps ( [json_key + ' : ', 
-		listvals], separators=(' ',' ')
+	response_format = json.dumps([json_key + ' : ', 
+		listvals], 
+		indent=4, separators=(' ',' ')
 		)
 
 	return response_format 
@@ -81,8 +82,8 @@ def get_businessDetails():
 
 	response = requests.get(url, headers=headers)
 	response_load = response.json()
-	response_dump = json.dumps(	[json_key,	
-		{'': response_load}],
+	response_dump = json.dumps([json_key,	
+		response_load],
 		sort_keys=False, indent=4, separators=(': ', ': ')	
 		)
 
@@ -107,8 +108,8 @@ def get_categories():
 
 	alias_str = ', '.join(data)
 	response_format = json.dumps ( [json_key, 
-		{alias_str: alias_str}],
-		separators=(', ', ', '))
+		alias_str],
+		indent=4, separators=(', ', ', '))
 
 	return response_format
 
