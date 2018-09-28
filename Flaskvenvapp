@@ -47,7 +47,7 @@ def get_search():
 					'alias': 'hawaiian',	
 					'address1': '5000 Burnet Rd',				
 					'coordinates': {'latitude': 30.321166, 'longitude': -97.739538 },
-					'radius': 8, 'limit': 10
+					'radius': 1609, 'limit': 10
 					}
 
 	response = requests.get(url, headers=headers, params=url_params)
