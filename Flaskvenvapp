@@ -21,9 +21,9 @@ except ImportError:
     from urllib2 import HTTPError
     from urllib import quote
     from urllib import urlencode
-api_key = os.environ.get('API_KEY_YELP')
 
 # API constants, you shouldn't have to change these.
+api_key = os.environ.get('API_KEY_YELP')
 API_HOST = 'api.yelp.com'
 SEARCH_PATH = '/v3/businesses/search'
 BUSINESS_PATH1 = '/v3/businesses/'  # Business ID will come after slash.
@@ -38,6 +38,7 @@ headers = {
 
 @app.route('/get_search')
 def get_search():
+
 	url = 'https://' + API_HOST + SEARCH_PATH
 	headers = {'Authorization': 'Bearer %s' % api_key,}
 
@@ -49,8 +50,6 @@ def get_search():
 					'radius': 8, 'limit': 10
 					}
 
-	data_id = []
-	data_alias = []
 	response = requests.get(url, headers=headers, params=url_params)
 	response_json = response.json()
 
@@ -61,23 +60,15 @@ def get_search():
 	listvals = []
 
 	for i in range(10):
-		listvals.append((response_businesses[i]['id'], response_businesses[i]['alias'], response_businesses[i]['coordinates']))		
+		listvals.append(('id : ' + response_businesses[i]['id'], 
+			'name : ' + response_businesses[i]['alias'], 
+			'coordinates :' , response_businesses[i]['coordinates']
+			)
+		)
 
-	#print ('\n id: '.join([' name: '.join([' coordinates: '.join(['{:4}'.format(item) for item in row]) for row in listvals])]))
-
-	response_format = json.dumps ( [json_key, 
-		{'id': listvals}],
-		separators=(', ', ', '))
-
-	# yelp_dump = json.dumps(	
-	# 	[json_key, 
-	# 	{
-	# 	'id': resp_id, 
-	# 	'name': resp_name, 
-	# 	'coordinates': resp_coords}
-	# 	], 
-	# 	sort_keys=False, indent=4, separators=(': ', ': ')		
-	# 	)
+	response_format = json.dumps ( [json_key + ' : ', 
+		listvals], separators=(' ',' ')
+		)
 
 	return response_format 
 	
@@ -103,11 +94,9 @@ def get_categories():
 	headers = {'Authorization': 'Bearer %s' % api_key,}
 	url_params = {
 	"data": [],
-    "country": "US",     
+    	"country": "US",     
     }
-
 	data = []
-
 	response = requests.get(url, headers=headers, params=url_params)
 	response_json = response.json()
 
@@ -124,8 +113,7 @@ def get_categories():
 	return response_format
 
 @app.route('/')
-def index():
-	
+def index():	
  	return get_search()
 	
 if __name__ == "__main__":
